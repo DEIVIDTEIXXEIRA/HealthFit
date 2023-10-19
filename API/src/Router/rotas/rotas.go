@@ -22,5 +22,5 @@ func Configurar(r *mux.Router) *mux.Router {
 		r.HandleFunc(rota.URI, rota.Funcao).Methods(rota.Metodo)
 	}
 
-	return r 
+	return r
 }
