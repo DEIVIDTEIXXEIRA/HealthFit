@@ -8,8 +8,8 @@ CREATE TABLE usuarios(
     nome varchar(50) not null,
     nick varchar(50) not null unique,
     email varchar(50) not null unique,
-    peso int,
-    altura int, 
-    idade int, 
+    peso int not null,
+    altura int not null, 
+    idade int not null, 
     senha varchar(50) not null
 ) ENGINE=INNODB;

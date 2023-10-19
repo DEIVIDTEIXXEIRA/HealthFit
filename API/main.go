@@ -2,14 +2,17 @@ package main
 
 import (
 	router "API/src/Router"
+	"API/src/config"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
-	fmt.Println("iniciando APi")
+	config.Carregar()
 	r := router.Gerar()
 
-	log.Fatal(http.ListenAndServe(":3030", r))
+
+	fmt.Printf("Escutando na porta %d", config.Porta)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Porta), r))
 }
