@@ -49,6 +49,7 @@ func (usuario *Usuario) validar() error {
 	if usuario.Idade == 0 {
 		return errors.New("O campo Idade é obrigatório e não pode estar vazio!!")
 	}
+	
 	return nil
 }
 

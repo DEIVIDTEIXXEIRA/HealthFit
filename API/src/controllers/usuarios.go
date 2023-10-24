@@ -8,6 +8,9 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // CriarUsuario insere um usuário no banco de dados
@@ -48,7 +51,29 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 
 // BuscarUsuario busca um usuário no banco de dados
 func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Buscando usuario"))
+	parametros := mux.Vars(r)
+	
+	usuarioId, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repositorios := repositorio.NovoRepositorioDeUsuario(db)
+	usuario, erro := repositorios.BuscarUsuario(usuarioId)
+	if erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return 
+	}
+
+	respostas.JSON(w, http.StatusOK, usuario)
 }
 
 // EditarUsuario edita as informações de um usuario no banco de dados
