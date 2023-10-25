@@ -27,7 +27,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if erro = usuario.Preparar(); erro != nil {
+	if erro = usuario.Preparar("cadastro"); erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
 	}
@@ -52,7 +52,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 // BuscarUsuario busca um usuário no banco de dados
 func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
-	
+
 	usuarioId, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
 	if erro != nil {
 		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
@@ -70,7 +70,7 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 	usuario, erro := repositorios.BuscarUsuario(usuarioId)
 	if erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
-		return 
+		return
 	}
 
 	respostas.JSON(w, http.StatusOK, usuario)
@@ -78,7 +78,45 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 
 // EditarUsuario edita as informações de um usuario no banco de dados
 func EditarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Editando usuario"))
+	corpoRequest, erro := ioutil.ReadAll(r.Body)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	var usuario modelos.Usuario
+
+	if erro = json.Unmarshal(corpoRequest, &usuario); erro != nil {
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	parametros := mux.Vars(r)
+	usuarioId, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+
+	if erro = usuario.Preparar("edicao"); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repositorios := repositorio.NovoRepositorioDeUsuario(db)
+	if erro = repositorios.Editar(usuarioId, usuario); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}
+
+	respostas.JSON(w, http.StatusOK, nil)
 }
 
 // DeletarUsuario exclui um usuario do banco de dados

@@ -18,8 +18,8 @@ type Usuario struct {
 }
 
 // Preparar formata e verifica espaçoes em branco em campos obrigatórios.
-func (usuario *Usuario) Preparar() error {
-	if erro := usuario.validar(); erro != nil {
+func (usuario *Usuario) Preparar(etapa string) error {
+	if erro := usuario.validar(etapa); erro != nil {
 		return erro
 	}
 
@@ -27,7 +27,7 @@ func (usuario *Usuario) Preparar() error {
 	return nil 
 }
 
-func (usuario *Usuario) validar() error {
+func (usuario *Usuario) validar(etapa string) error {
 	if usuario.Nome == "" {
 		return errors.New("O campo Nome é obrigatório e não pode estar vazio!!")
 	}
@@ -36,9 +36,6 @@ func (usuario *Usuario) validar() error {
 	}
 	if usuario.Email == "" {
 		return errors.New("O campo Email é obrigatório e não pode estar vazio!!")
-	}
-	if usuario.Senha == "" {
-		return errors.New("O campo Senha é obrigatório e não pode estar vazio!!")
 	}
 	if usuario.Peso == 0 {
 		return errors.New("O campo Peso é obrigatório e não pode estar vazio!!")
@@ -50,6 +47,10 @@ func (usuario *Usuario) validar() error {
 		return errors.New("O campo Idade é obrigatório e não pode estar vazio!!")
 	}
 	
+	if etapa == "cadastro" && usuario.Senha == "" {
+		return errors.New("O campo Senha é obrigatório e não pode estar vazio!!")
+	}
+
 	return nil
 }
 

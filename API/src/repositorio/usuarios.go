@@ -38,7 +38,7 @@ func (repositorio Usuario) Criar(usuario modelos.Usuario) (uint64, error) {
 }
 
 // BuscarUsuario busca um usuario no banco mediante a seu Id.
-func (repositorio Usuario) BuscarUsuario(usuarioId uint64) (modelos.Usuario , error){
+func (repositorio Usuario) BuscarUsuario(usuarioId uint64) (modelos.Usuario, error) {
 	linha, erro := repositorio.DB.Query(
 		"select id, nome, nick, email, peso, altura, idade from usuarios where id = ?", usuarioId,
 	)
@@ -63,4 +63,27 @@ func (repositorio Usuario) BuscarUsuario(usuarioId uint64) (modelos.Usuario , er
 		}
 	}
 	return usuario, nil
+}
+
+func (repositorio Usuario) Editar(Id uint64, usuario modelos.Usuario) error {
+	statetement, erro := repositorio.DB.Prepare(
+		"update usuarios set nome = ?, nick = ?, email = ?, peso = ?, altura = ?, idade = ?  where id = ?",
+	)
+	if erro != nil {
+		return erro
+	}
+	defer statetement.Close()
+
+	if _, erro = statetement.Exec(
+		usuario.Nome,
+		usuario.Nick,
+		usuario.Email,
+		usuario.Peso,
+		usuario.Altura,
+		usuario.Idade,
+		Id,
+	); erro != nil {
+		return erro
+	}
+	return nil
 }
