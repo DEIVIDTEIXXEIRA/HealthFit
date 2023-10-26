@@ -67,7 +67,7 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repositorios := repositorio.NovoRepositorioDeUsuario(db)
-	usuario, erro := repositorios.BuscarUsuario(usuarioId)
+	usuario, erro := repositorios.BuscarPorId(usuarioId)
 	if erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
@@ -121,5 +121,26 @@ func EditarUsuario(w http.ResponseWriter, r *http.Request) {
 
 // DeletarUsuario exclui um usuario do banco de dados
 func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Excluindo usuario"))
+	parametros := mux.Vars(r)
+	usuarioId, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnprocessableEntity, erro)
+		return
+	}
+
+	db, erro := banco.Conectar()
+	if erro != nil {
+		respostas.Erro(w, http.StatusInternalServerError, erro)
+		return
+	}
+	defer db.Close()
+
+	repositorio := repositorio.NovoRepositorioDeUsuario(db)
+	if erro = repositorio.Deletar(usuarioId); erro != nil {
+		respostas.Erro(w, http.StatusBadRequest, erro)
+		return
+	}	
+	
+	respostas.JSON(w, http.StatusOK, nil)
 }
+
