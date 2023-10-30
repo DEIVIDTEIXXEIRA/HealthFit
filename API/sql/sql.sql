@@ -11,5 +11,5 @@ CREATE TABLE usuarios(
     peso int not null,
     altura int not null, 
     idade int not null, 
-    senha varchar(50) not null
+    senha varchar(100) not null
 ) ENGINE=INNODB;
