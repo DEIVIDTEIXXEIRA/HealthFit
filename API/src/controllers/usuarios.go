@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"API/src/autenticacao"
 	"API/src/banco"
 	"API/src/modelos"
 	"API/src/repositorio"
 	"API/src/respostas"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -98,6 +100,17 @@ func EditarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usuarioIdNotoken, erro := autenticacao.ExtrairUsuarioId(r)
+	if erro != nil {
+		respostas.Erro(w, http.StatusUnauthorized, erro)
+		return
+	}
+
+	if usuarioId != usuarioIdNotoken {
+		respostas.Erro(w, http.StatusForbidden, errors.New("Não é possível atualizar um usuário que não seja o seu!!"))
+		return
+	}
+
 	if erro = usuario.Preparar("edicao"); erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
@@ -139,8 +152,7 @@ func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 	if erro = repositorio.Deletar(usuarioId); erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
-	}	
-	
+	}
+
 	respostas.JSON(w, http.StatusOK, nil)
 }
-
