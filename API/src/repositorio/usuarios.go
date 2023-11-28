@@ -104,7 +104,7 @@ func (repositorio Usuario) Deletar(Id uint64) error {
 	return nil
 }
 
-//BuscarPorEmail busca um usuario mediante a um email
+// BuscarPorEmail busca um usuario mediante a um email
 func (repositorio Usuario) BuscarPorEmail(email string) (modelos.Usuario, error) {
 	linha, erro := repositorio.DB.Query("select id, senha from usuarios where email = ?", email)
 	if erro != nil {
@@ -117,8 +117,42 @@ func (repositorio Usuario) BuscarPorEmail(email string) (modelos.Usuario, error)
 	if linha.Next() {
 		if erro = linha.Scan(&usuario.Id, &usuario.Senha); erro != nil {
 			return modelos.Usuario{}, erro
-		} 
+		}
 	}
 
-	return usuario, nil 
-} 
+	return usuario, nil
+}
+
+// Buscar senha busca a senha atual do usuário pelo Id.
+func (repositorio Usuario) BuscarSenha(usuarioId uint64) (string, error) {
+	linha, erro := repositorio.DB.Query("select senha from usuario where id = ?")
+	if erro != nil {
+		return "", erro
+	}
+	defer linha.Close()
+
+	var usuario modelos.Usuario
+
+	if linha.Next() {
+		if erro = linha.Scan(&usuario.Senha); erro != nil {
+			return "", erro
+		}
+	}
+
+	return usuario.Senha, nil
+}
+
+// AtualizarSenha altera a senha de um usuario
+func (repositorio Usuario) AtualizarSenha(usuarioID uint64, senha string) error {
+	statement, erro := repositorio.DB.Prepare("update usuarios set senha = ? where id = ?")
+	if erro != nil {
+		return erro
+	}
+	defer statement.Close()
+
+	if _, erro = statement.Exec(senha, usuarioID); erro != nil {
+		return erro
+	}
+
+	return nil
+}
