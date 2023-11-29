@@ -125,7 +125,7 @@ func (repositorio Usuario) BuscarPorEmail(email string) (modelos.Usuario, error)
 
 // Buscar senha busca a senha atual do usuário pelo Id.
 func (repositorio Usuario) BuscarSenha(usuarioId uint64) (string, error) {
-	linha, erro := repositorio.DB.Query("select senha from usuario where id = ?")
+	linha, erro := repositorio.DB.Query("select senha from usuarios where id = ?", usuarioId)
 	if erro != nil {
 		return "", erro
 	}
@@ -143,14 +143,14 @@ func (repositorio Usuario) BuscarSenha(usuarioId uint64) (string, error) {
 }
 
 // AtualizarSenha altera a senha de um usuario
-func (repositorio Usuario) AtualizarSenha(usuarioID uint64, senha string) error {
+func (repositorio Usuario) AtualizarSenha(usuarioId uint64, senha string) error {
 	statement, erro := repositorio.DB.Prepare("update usuarios set senha = ? where id = ?")
 	if erro != nil {
 		return erro
 	}
 	defer statement.Close()
 
-	if _, erro = statement.Exec(senha, usuarioID); erro != nil {
+	if _, erro = statement.Exec(senha, usuarioId); erro != nil {
 		return erro
 	}
 

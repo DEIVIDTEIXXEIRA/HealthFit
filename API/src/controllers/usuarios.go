@@ -171,7 +171,7 @@ func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 // AtualizarSenha atualiza a senha de um usuário
 func AtualizarSenha(w http.ResponseWriter, r *http.Request) {
 	parametros := mux.Vars(r)
-	usuarioId, erro := strconv.ParseUint(parametros["usuarioID"], 10, 64)
+	usuarioId, erro := strconv.ParseUint(parametros["usuarioId"], 10, 64)
 	if erro != nil {
 		respostas.Erro(w, http.StatusBadRequest, erro)
 		return
